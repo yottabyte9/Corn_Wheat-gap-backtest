@@ -1,0 +1,30 @@
+import pandas as pd
+data_c = pd.read_csv(r'C:\Users\andre\Downloads\Corn_Wheat.csv', on_bad_lines='skip')
+print(data_c.head())
+from backtesting import Strategy
+from backtesting.lib import crossover
+
+class SmaCross(Strategy):
+    
+    def init(self):
+        self.curr = self.data.Close
+    
+    def next(self):
+
+        if (self.curr < 0.6):
+            self.position.close()
+            self.buy()
+
+        elif (self.curr > 1 or self.curr < 0.3):
+            self.position.close()
+            self.sell()
+
+from backtesting import Backtest
+
+bt = Backtest(data_c.interpolate(), SmaCross, cash=10_000, commission=.002)
+stats = bt.run()
+stats
+
+bt.plot()
+
+stats['_trades']  #  individual trade data
